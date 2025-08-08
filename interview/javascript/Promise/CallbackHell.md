@@ -11,12 +11,20 @@
 - [🔥 What is Callback Hell?](#-what-is-callback-hell)
 - [😱 The Problem](#-the-problem)
 - [🏗 How It Forms](#-how-it-forms)
-- [⚠️ Why It's Bad](#️-why-its-bad)
+- [⚠️ Why It's Bad](#️-why-its-bad)s
 - [💡 Solutions](#-solutions)
 - [🔄 Refactoring Examples](#-refactoring-examples)
 - [🎯 Best Practices](#-best-practices)
 - [❓ Interview Questions](#-interview-questions)
 - [📚 Additional Resources](#-additional-resources)
+
+#### "JavaScript is a single-threaded and synchronous language. This means it runs code line by line. It doesn't move to the next line until the current line finishes executing. If there's an error in one line, it stops execution, and the next line won't run. This is how synchronous behavior works.
+
+- But what if we want a function to execute after some time or in response to some event? For example, a user clicks a button, or a file finishes uploading. To handle such situations, we use callbacks. A callback is a function that gets passed as an argument to another function and runs only when the task completes.
+
+- Here's the problem: imagine multiple tasks that depend on each other. One task waits for the result of another, and that second task waits for a third one. This creates a chain of dependencies where one function is dependent on the result of the previous one. In the beginning, this may seem fine, but as the code grows, it becomes messy and hard to manage. The nested callbacks lead to what we call callback hell, or the Pyramid of Doom.
+
+- In callback hell, as the code grows, the nesting deepens, and the result is a code structure that is difficult to read, debug, and maintain. It’s hard to find errors because they could be buried deep inside multiple levels of nested callbacks."
 
 ## 🔥🔥 What is Callback Hell?
 
@@ -37,25 +45,15 @@ It looks like a pyramid or Christmas tree structure — often called the "Pyrami
 ### 🌐 AJAX Request Hell
 
 ```javascript
-getUser((user) => {
-  getPosts(user.id, (posts) => {
-    getComments(posts[0].id, (comments) => {
-      console.log(comments);
-    });
-  });
-});
-// with error handling it get more messy
-
-getUser((err, user) => {
-  if (err) return handleError(err);
-  getPosts(user.id, (err, posts) => {
-    if (err) return handleError(err);
-    getComments(posts[0].id, (err, comments) => {
-      if (err) return handleError(err);
-      console.log(comments);
-    });
-  });
-});
+setTimeout(() => {
+  console.log("Step 1");
+  setTimeout(() => {
+    console.log("Step 2");
+    setTimeout(() => {
+      console.log("Step 3");
+    }, 1000);
+  }, 1000);
+}, 1000);
 ```
 
 # ❌ Problems with Callback Hell
@@ -101,29 +99,15 @@ getUser(handleUser);
 ### 2️⃣ Promises (Modern Solution)
 
 ```javascript
-getUser()
-  .then((user) => getPosts(user.id))
-  .then((posts) => getComments(posts[0].id))
-  .then((comments) => console.log(comments))
-  .catch((err) => handleError(err));
+const myPromise = new Promise((resolve, reject) => {
+  // Asynchronous operation
+  if (/* success */) {
+    resolve('Success!');
+  } else {
+    reject('Error!');
+  }
+});
 
-// Even better with Promise.all for parallel operations
-function combineFilesParallel() {
-  return Promise.all([
-    fs.readFile("file1.txt", "utf8"),
-    fs.readFile("file2.txt", "utf8"),
-    fs.readFile("file3.txt", "utf8"),
-  ])
-    .then(([data1, data2, data3]) => {
-      return fs.writeFile("output.txt", data1 + data2 + data3);
-    })
-    .then(() => {
-      console.log("Files combined successfully!");
-    })
-    .catch((err) => {
-      console.error("Operation failed:", err);
-    });
-}
 ```
 
 ### 3️⃣ Async/Await (Best Solution)
